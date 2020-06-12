@@ -1,13 +1,6 @@
 
 # Readme du challenge ROS. 
 
-Contributeurs :
-
-* Michael Dijon 3407249
-* Auxane Haffreingue 3520301
-
-Master/Groupe : IPS/SMR
-
 Année Universitaire 2019-2020, Deuxième semestre 
 ----------------------------------------------------------------------------------------------------------------------------------
 
