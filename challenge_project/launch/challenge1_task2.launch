@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Ce fichier lance le robot burger dans le monde correspondant au challenge 1 et devant le circuit correspondant à la tache 2.
+Il mets ensuite en route le noeud permettant au robot de réaliser le challenge 1 Task 2 : Suivre la ligne à vitesse variable (vitesse maximum = 0.5 pour les parties jaunes et (vitesse maximum)/2  pour les parties rouges ).
+
+Rq 1 : la vitesse 'maximum' du robot à été choisis à 0.5 pour assurer le bon deroulement de la simulation sur la machine utilisée lors de la réalisation de se projet (il en est de même pour chacune des taches suivantes).
+Cette valeur peu bien sûr être modifiée mais nous ne garantissions alors pas le parfait deroulement de la simulation suivant les challenges et taches considérés.
+
+Rq 2 : Les paramètres et arguments peuvent bien sûr tous être modifiés, cependant ceux réellement déstinés à être modifiables par l'utilisateur (sans provoquer de potentielles erreures) sont signalés par l'indication : Paramètre utilisateur. 
+-->
+
+<launch>
+
+  <!-- Chargement de la description URDF du robot burger  -->
+  <param name="robot_description" command="xacro --inorder $(find challenge_project)/urdf/turtlebot3_burger.urdf.xacro"/>
+
+  <!-- Paramètre : nom du topic ou se trouve les informations de la camera du robot -->
+  <param name="topic_camera" value="/image_raw"/>
+
+  <!-- Paramètre : nom du topic ou se trouve les informations de vitesse pour le robot -->
+  <param name="topic_velocity" value="/cmd_vel"/>
+
+  <!-- Paramètre : vitesse 'maximum' du robot -->
+  <param name="linear_scale" type="double" value="0.5" />
+
+
+  <!-- Position initiale du robot -->
+  <arg name="x" default="0"/>
+  <arg name="y" default="5.25"/>
+  <arg name="z" default="0.0175"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="3.14"/>
+
+  <!-- Paramètres de simulation -->
+  <arg name="world" default="empty"/> 
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+	<arg name="gui" default="true"/>
+	<arg name="debug" default="false"/>
+  
+  <!-- Lancement du monde (et de gazebo) -->
+  <!-- launch gazebo server and client from empty_world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+    <arg name="world_name" value="$(find challenge_project)/worlds/challenge1.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <!-- Lancement du robot dans le monde -->
+  <node name="mybot_gazebo" pkg="gazebo_ros" 
+        type="spawn_model" output="screen"
+        args="-urdf -param robot_description -model mybot 
+          		-x $(arg x) -y $(arg y) -z $(arg z)
+      				-R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" 
+  />
+
+
+  <!-- Lencement du noeud de suivi de ligne -->
+  <node pkg="challenge_project" name="challenge1_task2_linefollowing" type="challenge1_task2_linefollowing.py" 
+      output="screen" required="true" />
+
+</launch>

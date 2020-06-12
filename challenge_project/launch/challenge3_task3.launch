@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Ce fichier lance le robot burger dans le monde correspondant au challenge 3 tache 2.
+Il mets ensuite en route le noeud permettant au robot de réaliser ce challenge : Realiser le circuit jusqu'à la cible verte .
+
+Rq 1 : la vitesse 'maximum' du robot à été choisis à 0.5 pour assurer le bon deroulement de la simulation sur la machine utilisée lors de la réalisation de se projet.
+Cette valeur peu bien sûr être modifiée mais nous ne garantissions alors pas le parfait deroulement de la simulation suivant les challenges et taches considérés.
+
+Rq 2 : Les paramètres et arguments peuvent bien sûr tous être modifiés, cependant ceux réellement déstinés à être modifiables par l'utilisateur (sans provoquer de potentielles erreures) sont signalés par l'indication : Paramètre utilisateur.
+
+Rq 3 : Le robot à été testé de nombreuse fois et réussissait toujours la tache avec succés. Cependant, compte du caractère parfois aléatoire de la simulation (dependant notamment de la macghine utilisée) nous vous conseillons fortement de relancer la simulation si vous constatez quelque comportement aberrant de la part du robot.   
+-->
+
+<launch>
+
+  <!-- Chargement de la description URDF du robot burger  -->
+  <param name="robot_description" command="xacro --inorder $(find challenge_project)/urdf/turtlebot3_burger.urdf.xacro"/>
+
+  <!-- Paramètre : nom du topic ou se trouve les informations de vitesse pour le robot -->
+  <param name="topic_velocity" value="/cmd_vel"/>
+
+  <!-- Paramètre : vitesse linéaire 'maximum' du robot -->
+  <param name="linear_scale" type="double" value="0.5" />
+
+ <!-- Paramètre : nom du topic ou se trouve les informations du scanner (LIDAR) du robot -->
+  <param name="topic_scan" value="/scan" />
+
+  <!-- Paramètre : nom du topic ou se trouvent les informations de la camera --> 
+  <param name="topic_cam" value="/camera/image_raw" />
+
+  <!-- Paramètre utilisateur : distance de sécurité (éxprimée en m)--> 
+  <param name="safety_dist" type="double" value="0.5" />
+
+  <!-- Position initiale du robot en debut de ligne -->
+  <arg name="x" default="-1.05 "/>
+  <arg name="y" default="0.35"/>
+  <arg name="z" default="0.0175"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="4.2"/>
+
+  <!-- Position initiale du robot devant le corridor-->
+  <!--arg name="x" default="-4.5 "/>
+  <arg name="y" default="1"/>
+  <arg name="z" default="0.0175"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="2.5"/-->
+
+  <!-- Position initiale du robot aprés le corridor -->
+  <!--arg name="x" default="-12.5 "/>
+  <arg name="y" default="3.5"/>
+  <arg name="z" default="0.0175"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="3.14"/-->
+
+  <!-- Position initiale du robot devant la première intersection -->
+  <!--arg name="x" default="-18.5 "/>
+  <arg name="y" default="3.2"/>
+  <arg name="z" default="0.0175"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="3.14"/-->
+
+  <!-- Position initiale du robot devant la deuxème intersection -->
+  <!--arg name="x" default="-26 "/>
+  <arg name="y" default="3.3"/>
+  <arg name="z" default="0.0175"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="3.14"/-->
+
+  <!-- Paramètres de simulation -->
+  <arg name="world" default="empty"/> 
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="debug" default="false"/>
+  
+  <!-- Lancement du monde (et de gazebo) -->
+  <!-- launch gazebo server and client from empty_world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+    <arg name="world_name" value="$(find challenge_project)/worlds/challenge3.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <!-- Lancement du robot dans le monde -->
+  <node name="mybot_gazebo" pkg="gazebo_ros" 
+        type="spawn_model" output="screen"
+        args="-urdf -param robot_description -model mybot 
+              -x $(arg x) -y $(arg y) -z $(arg z)
+              -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" 
+  />
+
+  <!-- Lencement du noeud de l'obstacle mouvant--> 
+  <node name="OBSTACLE" pkg="challenge_project" type="challenge3b_world_control.py"/>
+  <!-- Lencement du noeud de la porte de garage --> 
+  <node name="DOOR" pkg="challenge_project" type="challenge3a_world_control.py"/>
+
+  <!-- Noeud de parcours du circuit  --> 
+  <node pkg="challenge_project" name="challenge3_task3_Circuit" type="challenge3_task3_Circuit.py" 
+      output="screen" required="true" />
+
+</launch>

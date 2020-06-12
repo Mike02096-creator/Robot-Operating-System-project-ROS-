@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- load robot URDF description-->
+  <param name="robot_description" command="xacro --inorder $(find challenge_project)/urdf/turtlebot3_burger.urdf.xacro"/>
+
+  <!-- send fake joint values -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="False"/>
+  </node>
+
+  <!-- combine joint values -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+  </node>
+
+  <!-- show in Rviz, WITH config file -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find challenge_project)/rviz/configuration.rviz"/>
+
+</launch>
